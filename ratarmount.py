@@ -1301,6 +1301,11 @@ seeking capabilities when opening that file.
         '--union-mount-cache-timeout', type=float, default=60,
         help='Timeout in seconds before stopping to build the union mount cache.')
 
+    recursionGroup.add_argument(
+        '--transform', type=str, nargs=2, metavar=('REGEX_PATTERN', 'REPLACEMENT'),
+        help='Specify a regex pattern and a replacement string, which will be applied via Python\'s re module '
+             'to the full path of the archive to be recursively mounted.')
+
     # Positional Arguments
 
     positionalGroup.add_argument(
@@ -1631,6 +1636,7 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
         writeOverlay                 = args.write_overlay,
         printDebug                   = int(args.debug),
         transformRecursiveMountPoint = args.transform_recursive_mount_point,
+        transform                    = args.transform,
         prioritizedBackends          = args.prioritizedBackends,
         maxCacheDepth                = args.union_mount_cache_max_depth,
         maxCacheEntries              = args.union_mount_cache_max_entries,
