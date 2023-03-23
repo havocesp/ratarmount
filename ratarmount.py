@@ -1331,9 +1331,18 @@ seeking capabilities when opening that file.
 
     # Manually check that all specified TARs and folders exist
     def checkMountSource(path):
-        if os.path.isdir(path) or zipfile.is_zipfile(path) or ('rarfile' in sys.modules and rarfile.is_rarfile(path)):
-            return os.path.realpath(path)
-        return checkInputFileType(path, encoding=args.encoding, printDebug=args.debug)[0]
+        try:
+            return checkInputFileType(
+                path, encoding=args.encoding, passwords=list(args.passwords), printDebug=args.debug
+            )[0]
+        except argparse.ArgumentTypeError as e:
+            if (
+                os.path.isdir(path)
+                or zipfile.is_zipfile(path)
+                or ('rarfile' in sys.modules and rarfile.is_rarfile(path))
+            ):
+                return os.path.realpath(path)
+            raise e
 
     mountSources: List[str] = []
     for path in args.mount_source:
