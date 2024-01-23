@@ -196,10 +196,10 @@ def plotSummary( logFiles ):
             ax.plot( xvalues[iSorted], yvalues[iSorted], marker = 'o', label = name )
             allx += [ xvalues[iSorted] ]
             ally += [ yvalues[iSorted] ]
-        minx = min( [ min( x ) for x in allx ] )
-        maxx = max( [ max( x ) for x in allx ] )
-        miny = min( [ min( x ) for x in ally ] )
-        maxy = max( [ max( x ) for x in ally ] )
+        minx = min( min( x ) for x in allx)
+        maxx = max( max( x ) for x in allx)
+        miny = min( min( x ) for x in ally)
+        maxy = max( max( x ) for x in ally)
         x = 10 ** np.linspace( np.log10( minx ), np.log10( maxx ) )
         if key in [ 'tselectpathstart' ]:
             ax.plot( x, x / x[0] * miny, linestyle = '--', color = '0.5', label = 'linear scaling' )
@@ -239,7 +239,7 @@ def plotSummary( logFiles ):
         ax.plot( xvalues[iSorted], yvalues[iSorted], marker = 'o', label = name )
         allx += [ list( xvalues[iSorted] ) ]
         ally += [ list( yvalues[iSorted] ) ]
-    miny = min( [ min( x ) for x in ally ] )
+    miny = min( min( x ) for x in ally)
 
     ax.plot( x, x / x[0] * miny, linestyle = '--', color = '0.5', label = 'linear scaling' )
     ax.legend( loc = 'best' )
