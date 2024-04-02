@@ -18,6 +18,7 @@ import indexed_zstd
 import pytest
 import xz
 import zstandard
+from security import safe_command
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -87,7 +88,7 @@ class TestParallelXZReader:
                 with open(tmpPath, 'wb') as file:
                     size = blockSize * blocksPerStream
                     file.write(base64.b64encode(os.urandom(size))[:size])
-                subprocess.run(['xz', f'--block-size={blockSize}', '--compress', '--force', tmpPath], check=True)
+                safe_command.run(subprocess.run, ['xz', f'--block-size={blockSize}', '--compress', '--force', tmpPath], check=True)
                 with open(tmpPath + '.xz', 'rb') as file:
                     archive.write(file.read())
 
@@ -210,7 +211,7 @@ class TestParallelZstdReader:
                 with open(tmpPath, 'wb') as file:
                     size = blockSize * blocksPerStream
                     file.write(base64.b64encode(os.urandom(size))[:size])
-                subprocess.run(['zstd', f'--block-size={blockSize}', '--compress', '--force', tmpPath], check=True)
+                safe_command.run(subprocess.run, ['zstd', f'--block-size={blockSize}', '--compress', '--force', tmpPath], check=True)
                 with open(tmpPath + '.zst', 'rb') as file:
                     archive.write(file.read())
 

@@ -16,6 +16,7 @@ import tarfile
 import tempfile
 
 import indexed_bzip2
+from security import safe_command
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -393,7 +394,7 @@ class TestSQLiteIndexedTarParallelized:
             pass
         os.truncate(sparsePath, 1024 * 1024)
         # The tarfile module only has read support for sparse files, therefore use GNU tar to do it
-        subprocess.run(["tar", "--append", "-f", tarPath, sparsePath], check=True)
+        safe_command.run(subprocess.run, ["tar", "--append", "-f", tarPath, sparsePath], check=True)
 
         # Create index. Because of the sparse file at the end, it might be recreated from scratch.
         indexFilePath = os.path.join(tmpdir, "foo.tar.index")
@@ -509,7 +510,7 @@ class TestSQLiteIndexedTarParallelized:
             pass
         os.truncate(sparsePath, 1024 * 1024)
         # The tarfile module only has read support for sparse files, therefore use GNU tar to do it
-        subprocess.run(["tar", "--append", "-f", tarPath, sparsePath], check=True)
+        safe_command.run(subprocess.run, ["tar", "--append", "-f", tarPath, sparsePath], check=True)
 
         # Create index. Because of the sparse file at the end, it might be recreated from scratch.
         print("\n=== Update Index With Sparse File ===")

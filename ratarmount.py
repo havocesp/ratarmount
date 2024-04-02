@@ -20,6 +20,7 @@ import urllib.parse
 import urllib.request
 import zipfile
 from typing import Any, Callable, Dict, Iterable, IO, List, Optional, Tuple, Union
+from security import safe_command
 
 try:
     import fuse
@@ -896,8 +897,7 @@ class PrintVersionAction(argparse.Action):
         print("Python", sys.version.split(' ', maxsplit=1)[0])
 
         try:
-            fusermountVersion = subprocess.run(
-                ["fusermount", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
+            fusermountVersion = safe_command.run(subprocess.run, ["fusermount", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
             ).stdout.strip()
             print("FUSE", re.sub('.* ([0-9][.][0-9.]+).*', r'\1', fusermountVersion.decode()))
         except Exception:
@@ -1458,11 +1458,10 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
 
     if args.unmount:
         try:
-            subprocess.run(
-                ["fusermount", "-u", args.unmount], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            safe_command.run(subprocess.run, ["fusermount", "-u", args.unmount], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
         except Exception:
-            subprocess.run(["umount", args.unmount], check=False)
+            safe_command.run(subprocess.run, ["umount", args.unmount], check=False)
         return
 
     if args.commit_overlay:
@@ -1559,8 +1558,7 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
         try:
             if input() == 'commit':
                 if os.stat(deletionList).st_size > 0:
-                    tarDelete = subprocess.run(
-                        [
+                    tarDelete = safe_command.run(subprocess.run, [
                             "tar",
                             "--delete",
                             "--null",
@@ -1587,8 +1585,7 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
                         raise RatarmountError("There were problems when trying to delete files.")
 
                 if os.stat(appendList).st_size > 0:
-                    subprocess.run(
-                        [
+                    safe_command.run(subprocess.run, [
                             "tar",
                             "--append",
                             "-C",
