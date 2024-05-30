@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
+import math
 
 
 lineStyles = ['-', ':', (0, (1, 7)), (0, (4, 3, 1, 3)), '--']
@@ -141,7 +142,7 @@ def plotBenchmark(labels, data, ax, command, metric, tools, scalingFactor=1):
             # Force zero-values for durations, which only have precision 0.01s, to 0.01s
             # to avoid "invisible" values when using log plot.
             if metric == 'duration/s' and ax.get_yscale() == 'log':
-                metricValues[metricValues == 0.0] = 0.01
+                metricValues[math.isclose(metricValues, 0.0, rel_tol=1e-09, abs_tol=0.0)] = 0.01
 
             bytesPerFile = values[labels.index("nBytesPerFile")]
 
