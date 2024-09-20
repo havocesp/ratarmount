@@ -8,7 +8,6 @@ import base64
 import io
 import lzma
 import os
-import random
 import subprocess
 import sys
 from typing import IO
@@ -17,6 +16,7 @@ import indexed_zstd
 import pytest
 import xz
 import zstandard
+import secrets
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -111,8 +111,8 @@ class TestParallelXZReader:
                 parallelFile.seek(0)
 
             for _ in range(samples):
-                offset = random.randint(0, size + 1)
-                size = random.randint(0, (size + 1 - offset) * 2)  # half the time read past the end
+                offset = secrets.SystemRandom().randint(0, size + 1)
+                size = secrets.SystemRandom().randint(0, (size + 1 - offset) * 2)  # half the time read past the end
 
                 serialFile.seek(offset)
                 serialData = serialFile.read(size)
@@ -238,8 +238,8 @@ class TestParallelZstdReader:
                     parallelFile.seek(0)
 
             for _ in range(samples):
-                offset = random.randint(0, size + 1)
-                size = random.randint(0, (size + 1 - offset) * 2)  # half the time read past the end
+                offset = secrets.SystemRandom().randint(0, size + 1)
+                size = secrets.SystemRandom().randint(0, (size + 1 - offset) * 2)  # half the time read past the end
 
                 serialFile.seek(offset)
                 serialData = serialFile.read(size)
