@@ -21,6 +21,7 @@ import urllib.parse
 import urllib.request
 import zipfile
 from typing import Any, Callable, Dict, Iterable, IO, List, Optional, Tuple, Union
+from security import safe_command
 
 try:
     import fuse
@@ -1583,8 +1584,7 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
                 binaryPath = os.path.join(folder, "fusermount")
                 if fusermountPath != binaryPath and os.path.isfile(binaryPath) and os.access(binaryPath, os.X_OK):
                     try:
-                        subprocess.run(
-                            [binaryPath, "-u", args.unmount], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                        safe_command.run(subprocess.run, [binaryPath, "-u", args.unmount], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
                         )
                         if args.debug >= 2:
                             print(f"[Info] Successfully called {binaryPath} -u.")
@@ -1593,7 +1593,7 @@ def cli(rawArgs: Optional[List[str]] = None) -> None:
                         if args.debug >= 2:
                             print(f"[Warning] {fusermountPath} -u {args.unmount} failed with: {exception}")
                         if args.debug >= 3:
-                            subprocess.run([fusermountPath, "-V", args.unmount], check=False)
+                            safe_command.run(subprocess.run, [fusermountPath, "-V", args.unmount], check=False)
 
         if os.path.ismount(args.unmount):
             try:
