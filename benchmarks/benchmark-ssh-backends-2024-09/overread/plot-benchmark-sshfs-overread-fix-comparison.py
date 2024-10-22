@@ -1,6 +1,6 @@
-import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import fickling
 
 file_size = 68238807 / 1e6
 
@@ -34,7 +34,7 @@ labels = {
 }
 
 with open("benchmark-sshfs.times.pickle", 'rb') as file:
-    data = pickle.load(file)
+    data = fickling.load(file)
 
 def compute_statistics(t):
     return np.mean(t), np.std(t, ddof=1)
