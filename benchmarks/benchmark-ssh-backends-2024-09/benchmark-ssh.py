@@ -567,40 +567,39 @@ class BenchmarkSshfsOverread:
 
         file_size = len(fs['sshfs'].open(src_path).read())
         print(f"Test file sized: {file_size} B")
+        with open(data_file_path, 'wb') as csv_file:
+            csv_file.write(b"# chunk size/B, size/B, time/s\n")
 
-        csv_file = open(data_file_path, 'wb')
-        csv_file.write(b"# chunk size/B, size/B, time/s\n")
+            for i in range(repetitions):
+                for chunk_size_in_KiB in [-1, 4 << 20, 2 << 20, 1 << 20, 512 * 1024, 128 * 1024, 4 * 1024, 32]:
+                    chunk_size = chunk_size_in_KiB * 1024 if chunk_size_in_KiB >= 0 else chunk_size_in_KiB
+                    chunk_count = (file_size + chunk_size - 1) // chunk_size if chunk_size > 0 else 1
+                    print(f"Read {chunk_count} chunks sized {chunk_size_in_KiB} KiB.")
 
-        for i in range(repetitions):
-            for chunk_size_in_KiB in [-1, 4 << 20, 2 << 20, 1 << 20, 512 * 1024, 128 * 1024, 4 * 1024, 32]:
-                chunk_size = chunk_size_in_KiB * 1024 if chunk_size_in_KiB >= 0 else chunk_size_in_KiB
-                chunk_count = (file_size + chunk_size - 1) // chunk_size if chunk_size > 0 else 1
-                print(f"Read {chunk_count} chunks sized {chunk_size_in_KiB} KiB.")
+                    for open_file_name in ['sshfs', 'fsspec']:
+                        file = fs[open_file_name].open(src_path)
 
-                for open_file_name in ['sshfs', 'fsspec']:
-                    file = fs[open_file_name].open(src_path)
+                        t0=time.time()
+                        size = 0
+                        for i in range(chunk_count):
+                            read_size = len(file.read(chunk_size))
+                            #print(f"Read {read_size} out of {chunk_size} for chunk {i}.")
+                            size += read_size
+                        t1=time.time()
 
-                    t0=time.time()
-                    size = 0
-                    for i in range(chunk_count):
-                        read_size = len(file.read(chunk_size))
-                        #print(f"Read {read_size} out of {chunk_size} for chunk {i}.")
-                        size += read_size
-                    t1=time.time()
+                        if size != file_size:
+                            print(f"Read {size} B but expected {file_size} B!")
+                            assert size == file_size
 
-                    if size != file_size:
-                        print(f"Read {size} B but expected {file_size} B!")
-                        assert size == file_size
+                        file.close()
 
-                    file.close()
+                        csv_file.write(','.join([str(chunk_size), str(size), str(t1 - t0)]).encode() + b'\n')
+                        csv_file.flush()
 
-                    csv_file.write(','.join([str(chunk_size), str(size), str(t1 - t0)]).encode() + b'\n')
-                    csv_file.flush()
-
-                    print(
-                        f"Read {size / 1e6:.2f} MB in {chunk_size_in_KiB} KiB chunks with {open_file_name} "
-                        f"in {t1-t0:.2f} s -> {size/(t1-t0)/1e6:.2f} MB/s"
-                    )
+                        print(
+                            f"Read {size / 1e6:.2f} MB in {chunk_size_in_KiB} KiB chunks with {open_file_name} "
+                            f"in {t1-t0:.2f} s -> {size/(t1-t0)/1e6:.2f} MB/s"
+                        )
 
 
     @classmethod
