@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import time
 import zipfile
+from security import safe_command
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -65,7 +66,7 @@ def create_encrypted_test_file(path):
 
         if command:
             print("Create zip file with:", " ".join(command))
-            subprocess.run(command, check=True)
+            safe_command.run(subprocess.run, command, check=True)
     finally:
         os.chdir(old_working_directory)
         if folder is not None:

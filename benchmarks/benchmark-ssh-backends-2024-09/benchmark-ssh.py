@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import paramiko
 import sshfs
+from security import safe_command
 
 
 def get_magnitude(x):
@@ -213,7 +214,7 @@ class BenchmarkFullRead:
 
         t0 = time.time()
         print(' '.join(command))
-        subprocess.run(command, check=True)
+        safe_command.run(subprocess.run, command, check=True)
         t1 = time.time()
 
         size = os.stat(test_file).st_size
